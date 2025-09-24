@@ -1,0 +1,71 @@
+// Copyright 2025 (Holloway) Chew, Kean Ho <hello@hollowaykeanho.com>
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy of
+// the License at:
+//                 http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+
+// Import dependencies
+T2T = {import:ai-text-plugin}
+Stats = {import:generator-stats-plugin}
+Chat = {import:comments-plugin}
+
+
+// Definitions
+// Grouped keywords for certain definitions. These keywords are specifically
+// attuned to prechance.org Text2Text AI input since it's unknown what type of
+// AI model they're using at the backend side.
+definitions
+  title = Clean Text2Text (T2T) Generator
+  description = clean and simple generator app with manual overrides.
+  version = v1.3.0
+  authors = (Holloway) Chew, Kean Ho
+  SEO
+    banner = https://user.uploads.dev/file/0ee1abb61a90fef2da87defdae56e819.jpg
+    url = https://perchance.org/clean-text2text
+  chats
+    width = 100%
+    admin = 2ec0cd62e6adc483543d8958a7000b9d7ad16ab65ba817a4a3e8b1485e38ea56
+    placeholder = Type your message here!
+    button = SEND
+
+// HTML page definitions
+$meta
+  title = [definitions.title] [definitions.version]
+  description = [definitions.description]
+  image = [definitions.SEO.banner]
+
+settings
+  labels
+    prompt = [definitions.labels.prompt]
+  session = ['']
+  output_id = ['']
+  stats
+    views = [Stats("views")]
+    last_modified = [Stats("lastEditTime")]
+    authors = [definitions.authors]
+  chats
+    width = 100%
+    height = 500px
+    adminPasswordHash = [definitions.chats.admin]
+    general_channel
+      label = Fireside Chats
+      commentPlaceholderText = [definitions.chats.placeholder]
+      submitButtonText = [definitions.chats.button]
+
+prompt
+  instruction = [settings.session]
+  onChunk(data) =>
+    render_backend_reply_chunk(data.textChunk, settings.output_id);
+  onFinish(data) =>
+    render_backend_finish(data);
+    settings.session = '';
+
+output
+  [prompt.instruction != '' ? [T2T(prompt)] : ['']]

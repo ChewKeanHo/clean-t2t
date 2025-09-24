@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>[$meta.title]</title>
+	<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+	<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+	<link rel='preconnect' href='https://fonts.googleapis.com' />
+	<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+	<link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap' />
+	<style>
+:root {
+	/* page */
+	--page-padding: .8rem;
+	--page-padding-lv3: 2rem;
+	--page-font-size: 1.3rem;
+	--page-font-size-lv3: 1.6rem;
+	--page-title-font-size: 3.5rem;
+
+	/* content tabs */
+	--tab-padding: 1.5rem;
+	--tab-padding-lv3: 1.8rem;
+	--tab-content-gap-spacing: 1.8rem;
+	--tab-content-gap-spacing-lv3: 2.8rem;
+
+	--tab-bookmark-padding: .5rem;
+	--tab-bookmark-padding-lv3: .5rem;
+	--tab-bookmark-border-radius: .35rem;
+	--tab-bookmark-border-radius-lv3: .35rem;
+
+	/* chat bubbles */
+	--chat-transcript-section-height: max-content;
+	--chat-transcript-section-gap-spacing: .5rem;
+	--chat-transcript-section-padding-bottom: .5rem;
+	--chat-transcript-section-padding-bottom-lv3: .75rem;
+
+	--chat-transcript-button-padding: .8rem;
+	--chat-transcript-button-padding-lv3: 1rem;
+	--chat-transcript-button-border-radius: .4rem;
+	--chat-transcript-button-border-radius-lv3: .5rem;
+
+	--chat-output-padding: .5rem;
+	--chat-output-padding-vertical: .8rem;
+
+	--chat-bubble-message-padding: .9rem;
+	--chat-bubble-message-padding-lv3: 1rem;
+
+	--chat-bubble-origin-margin: 1.5rem;
+	--chat-bubble-origin-margin-lv3: 2.2rem;
+
+	--chat-bubble-message-gap: 10px;
+	--chat-bubble-message-profile-gap: .5rem;
+
+	--chat-bubble-profile-min-length: 4rem;
+	--chat-bubble-profile-min-length-lv3: 6rem;
+
+	--chat-input-message-box-padding: .5rem;
+	--chat-input-message-box-padding-lv3: .8rem;
+	--chat-input-message-box-border-radius: .5rem;
+	--chat-input-message-box-border-radius-lv3: .8rem;
+
+	--chat-input-submit-button-width: 100%;
+	--chat-input-submit-button-width-lv3: 5rem;
+	--chat-input-submit-button-height: 2.5rem;
+	--chat-input-submit-button-height-lv3: 4rem;
+
+	--chat-input-gap-spacing: 0;
+	--chat-input-gap-spacing-lv3: .8rem;
+
+	--chat-input-padding: .5rem 1rem 1rem;
+	--chat-input-padding-lv3: .1rem 1rem;
+
+	/* typing indicator */
+	--typing-indicator-dot-dimension-length: .4rem;
+	--typing-indicator-dot-dimension-length-lv3: .5rem;
+
+	--typing-indicator-padding: .85rem;
+	--typing-indicator-padding-lv3: 1rem;
+}
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+
+	transition: .1s;
+	scroll-behavior: smooth;
+}
+
+html {
+	font-size: 62.5%; /* 1.6rem = 16px */
+
+	width: 100%; /* fallback if calc fails */
+	width: calc(100vw - calc(100vw - 100%));
+	height: 100%; /* fallback if calc fails */
+	height: calc(100vh - calc(100vh - 100%));
+}
+
+body {
+	display: grid;
+	grid: "headers" minmax(0, 20%)
+		"navigations" minmax(0, 10%)
+		"contents" auto
+		"hidden" 0 /
+		100%;
+
+	min-width: 100vw;
+	max-width: 100dvw;
+	min-height: 100vh;
+	max-height: 100dvh;
+
+	padding-bottom: var(--page-padding);
+
+	font-size: var(--page-font-size);
+	font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	text-align: left;
+
+	color: #444;
+	background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+
+	overflow: hidden;
+}
+
+body > * {
+	min-width: 100%;
+	max-height: 100%;
+	min-height: 100%;
+	max-height: 100%;
+
+	padding: 0 var(--page-padding);
+}
+
+body > *:first-child {
+	padding-top: var(--page-padding);
+}
+
+body > input {
+	display: none;
+}
+
+body > section.hidden {
+	grid-area: hidden;
+	z-index: -1;
+
+	max-height: 0;
+
+	opacity: 0;
+	visibility: hidden;
+}
+
+body > section.tab {
+	grid-area: contents;
+	z-index: -1;
+
+	opacity: 0;
+	visibility: hidden;
+}
+
+ul, ol {
+	padding-left: 30px;
+}
+
+@media (min-width: 600px) {
+	body {
+		grid: "headers" minmax(0, 15%)
+			"navigations" minmax(0, 5%)
+			"contents" auto
+			"hidden" 0 /
+			100%;
+
+		padding-bottom: var(--page-padding-lv3);
+
+		font-size: var(--page-font-size-lv3);
+	}
+
+	body > * {
+		padding: 0 var(--page-padding-lv3);
+	}
+
+	body > *:first-child {
+		padding-top: var(--page-padding-lv3);
+	}
+}
+
+body > section#header_section {
+	grid-area: headers;
+	display: grid;
+	grid: "title" auto
+		"description" 1fr /
+		100%;
+	align-items: start;
+	align-content: center;
+	justify-content: left;
+	gap: 0;
+
+	padding-top: var(--page-padding); /* perchance smelly code workaround */
+
+	background: linear-gradient(90deg, #4b6cb7, #182848);
+	color: white;
+
+	overflow: hidden;
+}
+
+@media (min-width: 600px) {
+	body > section#header_section {
+		padding-top: var(--page-padding-lv3); /* perchance smelly code workaround */
+	}
+}
+
+section#header_section > h1 {
+	grid-area: title;
+	margin: 0;
+	padding: 0;
+
+	font-size: var(--page-title-font-size);
+	font-weight: 300;
+}
+
+section#header_section a {
+	text-decoration: none;
+
+	color: inherit;
+}
+
+section#header_section > .description {
+	grid-area: description;
+
+	font-size: 12px;
+}
+
+body > nav#main_nav_section {
+	grid-area: navigations;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: flex-end;
+	gap: 5px;
+
+	margin-top: 1px;
+	padding-top: 10px;
+
+	overflow: hidden;
+}
+
+nav#main_nav_section > label {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 0;
+
+	padding: var(--tab-bookmark-padding);
+
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: var(--tab-bookmark-border-radius) var(--tab-bookmark-border-radius) 0 0;
+
+	color: white;
+	background: rgba(255, 255, 255, 0.32);
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(7px);
+	-webkit-backdrop-filter: blur(7px);
+
+	cursor: pointer;
+}
+
+body > input[type="radio"]#input_fireside_chats_tab:checked
+	~ nav#main_nav_section > label[for=input_fireside_chats_tab],
+body > input[type="radio"]#input_support_maintainers_tab:checked
+	~ nav#main_nav_section > label[for=input_support_maintainers_tab],
+body > input[type="radio"]#input_releases_notes_tab:checked
+	~ nav#main_nav_section > label[for=input_releases_notes_tab],
+body > input[type="radio"]#input_faq_tab:checked
+	~ nav#main_nav_section > label[for=input_faq_tab],
+body > input[type="radio"]#input_prompt_tab:checked
+	~ nav#main_nav_section > label[for=input_prompt_tab] {
+	border-color: rgba(255, 255, 255, 0.15);
+
+	background: rgba(255, 255, 255, 0.78);
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(7px);
+	-webkit-backdrop-filter: blur(7px);
+}
+
+body > input[type="radio"]:disabled ~ nav#main_nav_section > label,
+body > input[type="radio"]:checked:disabled ~ nav#main_nav_section > label {
+	opacity: .1;
+
+	cursor: not-allowed;
+}
+
+@media screen and (min-width: 600px) {
+	nav#main_nav_section > label {
+		padding: var(--tab-bookmark-padding-lv3);
+		border-radius: var(--tab-bookmark-border-radius-lv3) var(--tab-bookmark-border-radius-lv3) 0 0;
+	}
+}
+
+body > input[type="radio"]:checked + section.tab {
+	z-index: 1;
+
+	opacity: 1;
+	visibility: visible;
+}
+
+section.tab > div.container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: stretch;
+	align-content: flex-start;
+	justify-content: flex-start;
+	gap: var(--tab-content-gap-spacing);
+
+	min-width: 100%;
+	max-width: 100%;
+	min-height: 100%;
+	max-height: 100%;
+
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-bottom: none;
+	border-radius: 16px;
+
+	background: rgba(255, 255, 255, 0.78);
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(7px);
+	-webkit-backdrop-filter: blur(7px);
+
+	overflow: hidden auto;
+}
+
+section.tab > div.container > * {
+	padding: 0 var(--tab-padding);
+}
+
+section.tab > div.container > *.row {
+	min-width: 100%;
+	width: 100%;
+	max-width: 100%;
+}
+
+section.tab > div.container > *:first-child {
+	padding-top: var(--tab-padding);
+}
+
+section.tab > div.container > *:last-child {
+	padding-bottom: var(--tab-padding);
+}
+
+body > section#prompt_tab > div.container {
+	display: grid;
+	grid: "transcripts" 10%
+		"outputs" auto
+		"inputs" 30% /
+		100%;
+	align-content: stretch;
+	gap: 0;
+
+	overflow: hidden;
+}
+
+@media screen and (min-width: 600px) {
+	section.tab > div.container {
+		gap: var(--tab-content-gap-spacing-lv3);
+	}
+
+	section.tab > div.container > * {
+		padding: 0 var(--tab-padding-lv3);
+	}
+
+	section.tab > div.container > *:first-child {
+		padding-top: var(--tab-padding-lv3);
+	}
+
+	section.tab > div.container > *:last-child {
+		padding-bottom: var(--tab-padding-lv3);
+	}
+}
+
+@media screen and (min-height: 700px) {
+	body > section#prompt_tab > div.container {
+		grid: "transcripts" 10%
+			"outputs" auto
+			"inputs" 20% /
+			100%;
+	}
+}
+
+section#prompt_tab section#prompt_transcript_section {
+	grid-area: transcripts;
+	display: grid;
+	grid: "download clear upload" 100% /
+		1fr 1fr 1fr;
+	align-items: center;
+	justify-items: center;
+	gap: var(--chat-transcript-section-gap-spacing);
+
+	min-height: var(--chat-transcript-section-height);
+	height: var(--chat-transcript-section-height);
+	max-height: 100%;
+
+	padding-bottom: var(--chat-transcript-section-padding-bottom);
+}
+
+section#prompt_tab section#prompt_transcript_section button {
+	width: max-content;
+	height: max-content;
+
+	border: none;
+	border-radius: var(--chat-transcript-button-border-radius);
+	padding: var(--chat-transcript-button-padding);
+
+	text-transform: uppercase;
+
+	cursor: pointer;
+	box-shadow: 0 .2rem .8rem rgba(0, 0, 0, 0.2);
+}
+
+section#prompt_tab section#prompt_transcript_section button:hover,
+section#prompt_tab section#prompt_transcript_section button:focus {
+	opacity: 0.9;
+	transform: scale(1.1);
+}
+
+section#prompt_tab section#prompt_transcript_section button:active {
+	transform: scale(0.98);
+}
+
+section#prompt_tab section#prompt_transcript_section button#button_transcript_download {
+	grid-area: download;
+	justify-self: center;
+
+	color: white;
+	background: linear-gradient(90deg, #4b6cb7, #182848);
+}
+
+section#prompt_tab section#prompt_transcript_section button#button_transcript_clear {
+	grid-area: clear;
+	justify-self: center;
+
+	color: white;
+	background: linear-gradient(90deg, #b21f1f, #8b0000);
+}
+
+
+section#prompt_tab section#prompt_transcript_section button#button_transcript_upload {
+	grid-area: upload;
+	justify-self: center;
+
+	color: white;
+	background: linear-gradient(90deg, #182848, #4b6cb7);
+}
+
+section#prompt_tab section#prompt_transcript_section button:disabled,
+section#prompt_tab section#prompt_transcript_section button:disabled:hover,
+section#prompt_tab section#prompt_transcript_section button:disabled:focus,
+section#prompt_tab section#prompt_transcript_section button:disabled:active {
+	box-shadow: none;
+
+	opacity: .1;
+	cursor: not-allowed;
+	transform: scale(1.0);
+}
+
+section#prompt_tab section#prompt_output_section {
+	grid-area: outputs;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: flex-start;
+	flex-wrap: nowrap;
+	gap: var(--chat-bubble-message-gap);
+
+	padding: var(--chat-output-padding);
+	padding-top: var(--chat-output-padding-vertical);
+	padding-bottom: var(--chat-output-padding-vertical);
+
+	overflow: hidden auto;
+}
+
+section#prompt_tab section#prompt_input_section {
+	grid-area: inputs;
+	display: grid;
+	grid: "message" auto
+		"submit" var(--chat-input-submit-button-height) /
+		100%;
+	gap: var(--chat-input-gap-spacing);
+	align-items: center;
+	justify-items: center;
+
+	padding: var(--chat-input-padding);
+
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-bottom: none;
+	border-radius: 0 0 16px 16px;
+
+	background: rgba(255, 255, 255, 0.05);
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(7px);
+	-webkit-backdrop-filter: blur(7px);
+}
+
+section#prompt_tab section#prompt_input_section > textarea {
+	grid-area: message;
+
+	width: 100%;
+	min-height: 90%;
+	max-height: 90%;
+	resize: none;
+
+	padding: var(--chat-input-message-box-padding);
+	border: .18rem solid #aaa;
+	border-radius: var(--chat-input-message-box-border-radius);
+
+	outline: none;
+
+	overflow: hidden auto;
+	transition: border-color 0.3s;
+}
+
+section#prompt_tab section#prompt_input_section > textarea::placeholder {
+	font-style: italic;
+}
+
+section#prompt_tab section#prompt_input_section > textarea:hover,
+section#prompt_tab section#prompt_input_section > textarea:focus,
+section#prompt_tab section#prompt_input_section > textarea:active {
+	border-color: #4b6cb7;
+}
+
+section#prompt_tab section#prompt_input_section > textarea:disabled,
+section#prompt_tab section#prompt_input_section > textarea:disabled:hover,
+section#prompt_tab section#prompt_input_section > textarea:disabled:focus,
+section#prompt_tab section#prompt_input_section > textarea:disabled:active {
+	border-color: #aaa;
+}
+
+section#prompt_tab section#prompt_input_section > textarea:disabled::placeholder {
+	color: #aaa;
+}
+
+
+section#prompt_tab section#prompt_input_section > button {
+	grid-area: submit;
+
+
+	min-width: var(--chat-input-submit-button-width);
+	width: var(--chat-input-submit-button-width);
+	max-width: 100%;
+	min-height: var(--chat-input-submit-button-height);
+	height: var(--chat-input-submit-button-height);
+	max-height: 100%;
+
+	border: none;
+	border-radius: 5px;
+
+	background: linear-gradient(90deg, #4b6cb7, #182848);
+	color: white;
+
+	cursor: pointer;
+	transition: transform 0.2s, opacity 0.2s;
+}
+
+section#prompt_tab section#prompt_input_section > button:hover,
+section#prompt_tab section#prompt_input_section > button:focus {
+	opacity: 0.9;
+	transform: scale(1.1);
+}
+
+section#prompt_tab section#prompt_input_section > button:disabled {
+	box-shadow: none;
+
+	opacity: .1;
+	cursor: not-allowed;
+	transform: scale(1.00);
+}
+
+section#prompt_tab section#prompt_input_section > button:active {
+	transform: scale(0.98);
+}
+
+@media (min-width: 600px) {
+	section#prompt_tab section#prompt_transcript_section {
+		padding-bottom: var(--chat-transcript-section-padding-bottom-lv3);
+	}
+
+	section#prompt_tab section#prompt_transcript_section button {
+		padding: var(--chat-transcript-button-padding-lv3);
+		border-radius: var(--chat-transcript-button-border-radius-lv3);
+	}
+
+	section#prompt_tab section#prompt_input_section {
+		grid: "message submit" 100% /
+			auto var(--chat-input-submit-button-width-lv3);
+		gap: var(--chat-input-gap-spacing-lv3);
+
+		padding: var(--chat-input-padding-lv3);
+	}
+
+	section#prompt_tab section#prompt_input_section > textarea {
+		padding: var(--chat-input-message-box-padding-lv3);
+		border-radius: var(--chat-input-message-box-border-radius-lv3);
+	}
+
+	section#prompt_tab section#prompt_input_section > button {
+		min-width: var(--chat-input-submit-button-width-lv3);
+		width: var(--chat-input-submit-button-width-lv3);
+		min-height: var(--chat-input-submit-button-height-lv3);
+		height: var(--chat-input-submit-button-height-lv3);
+	}
+
+	section#prompt_tab section#prompt_transcript_section button#button_transcript_download {
+		justify-self: end;
+	}
+
+	section#prompt_tab section#prompt_transcript_section button#button_transcript_clear {
+		justify-self: center;
+	}
+
+	section#prompt_tab section#prompt_transcript_section button#button_transcript_upload {
+		justify-self: start;
+	}
+}
+
+.chat-bubble {
+	display: grid;
+	gap: var(--chat-bubble-message-profile-gap);
+
+}
+
+.chat-bubble.requester {
+	grid: "message profile" 1fr /
+		auto minmax(0, min-content);
+
+	margin-left: var(--chat-bubble-origin-margin);
+	border-radius: 16px 0 16px 16px;
+
+	background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+}
+
+.chat-bubble.responder {
+	grid: "profile message" 1fr /
+		minmax(0, min-content) auto;
+
+	margin-right: var(--chat-bubble-origin-margin);
+	border-radius: 0 16px 16px 16px;
+
+	background: linear-gradient(225deg, #f5f7fa, #c3cfe2);
+}
+
+.chat-bubble .chat-profile {
+	grid-area: profile;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	font-size: 30px;
+	font-weight: 800;
+
+	min-width: var(--chat-bubble-profile-min-length);
+	width: var(--chat-bubble-profile-min-length);
+	max-width: 100%;
+	min-height: var(--chat-bubble-profile-min-length);
+	height: var(--chat-bubble-profile-min-length);
+	max-height: 100%;
+
+	background: linear-gradient(90deg, #4b6cb7, #182848);
+	color: white;
+}
+
+.chat-bubble .chat-message {
+	grid-area: message;
+
+	padding: var(--chat-bubble-message-padding);
+
+	text-align: left;
+
+	background: transparent;
+}
+
+@media (min-width: 600px) {
+	.chat-bubble.requester {
+		margin-left: var(--chat-bubble-origin-margin-lv3);
+	}
+
+	.chat-bubble.responder {
+		margin-right: var(--chat-bubble-origin-margin-lv3);
+	}
+
+	.chat-bubble .chat-profile {
+		min-width: var(--chat-bubble-profile-min-length-lv3);
+		width: var(--chat-bubble-profile-min-length-lv3);
+		min-height: var(--chat-bubble-profile-min-length-lv3);
+		height: var(--chat-bubble-profile-min-length-lv3);
+	}
+
+	.chat-bubble .chat-message {
+		padding: var(--chat-bubble-message-padding-lv3);
+	}
+}
+
+.typing-indicator {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	padding: var(--typing-indicator-padding);
+
+	background: rgba(0, 0, 0, 0.05);
+	border-radius: 18px;
+}
+
+.typing-indicator span {
+	display: inline-block;
+
+	width: var(--typing-indicator-dot-dimension-length);
+	max-width: 100%;
+	height: var(--typing-indicator-dot-dimension-length);
+	max-height: 100%;
+
+	margin: 0 2px;
+
+	border-radius: 50%;
+
+	background: #4b6cb7;
+
+	opacity: 0.6;
+	animation: typing 1.4s infinite ease-in-out;
+}
+
+@media (min-width: 600px) {
+	.typing-indicator {
+		padding: var(--typing-indicator-padding-lv3);
+	}
+
+	.typing-indicator span {
+		width: var(--typing-indicator-dot-dimension-length-lv3);
+		height: var(--typing-indicator-dot-dimension-length-lv3);
+	}
+}
+
+.typing-indicator span:nth-child(1) {
+	animation-delay: 0s;
+}
+
+.typing-indicator span:nth-child(2) {
+	animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+	animation-delay: 0.4s;
+}
+
+@keyframes typing {
+	0%, 60%, 100% {
+		transform: translateY(0);
+		opacity: 0.6;
+	}
+	30% {
+		transform: translateY(-5px);
+		opacity: 1;
+	}
+}
+	</style>
+	<script>
+// definitions
+const CHAT_REQUESTER = 0;
+const CHAT_REQUESTER_NAME = "USER";
+
+const CHAT_RESPONDER = 1;
+const CHAT_RESPONDER_NAME = "AI";
+
+
+
+
+// add a chat entry bubble into the output field
+function add_chat_entry(owner, message) {
+	const output_section = document.getElementById("prompt_output_section");
+
+	// validate inputs
+	if (!output_section) {
+		console.log("[ ERROR ] missing 'prompt_output_section'!");
+		return "";
+	}
+
+	// execute
+	const chat_bubble_current_index = output_section.children.length;
+
+	const chat_bubble_profile = document.createElement('div');
+	chat_bubble_profile.id = 'chat_bubble_profile_' + chat_bubble_current_index;
+	chat_bubble_profile.className = 'chat-profile';
+
+	const chat_bubble_message = document.createElement('p');
+	chat_bubble_message.id = 'chat_bubble_message_' + chat_bubble_current_index;
+	chat_bubble_message.className = 'chat-message';
+	if (message != '') {
+		chat_bubble_message.innerText = message;
+	}
+
+	const chat_bubble = document.createElement('div');
+	chat_bubble.id = 'chat_bubble_' + chat_bubble_current_index;
+	chat_bubble.appendChild(chat_bubble_profile);
+	chat_bubble.appendChild(chat_bubble_message);
+
+	switch (owner) {
+	case 0: // requester
+		chat_bubble.className = 'chat-bubble requester';
+		chat_bubble_profile.innerText = '<';
+		break;
+	case 1: // responder
+		chat_bubble.className = 'chat-bubble responder';
+		chat_bubble_profile.innerText = '>';
+
+		if (message === '') {
+			const indicator = document.createElement('div');
+			indicator.className = 'typing-indicator';
+			indicator.id = 'chat-buble-typing-indicator_' + chat_bubble_current_index;
+
+			for (let i = 0; i < 3; i++) {
+				const dot = document.createElement('span');
+				indicator.appendChild(dot);
+			}
+
+			chat_bubble_message.appendChild(indicator);
+		}
+		break;
+	default:
+		console.log("[ ERROR ] can't add chat entry! unknown owner: " + owner);
+		return "";
+	}
+
+	// all good - append user chat bubble into output
+	output_section.appendChild(chat_bubble);
+
+	// always scroll to the bottom for latest
+	output_section.scrollTop = output_section.scrollHeight - output_section.clientHeight;
+
+	// return chat id for responder rendering
+	return chat_bubble_message.id;
+}
+
+
+
+
+// enable inputs
+function enable_inputs(reset_content) {
+	// validate inputs
+	const user_textbox = document.getElementById("prompt_user_input_box");
+	const user_button = document.getElementById("prompt_user_input_submit");
+	const download_button = document.getElementById("button_transcript_download");
+	const clear_button = document.getElementById("button_transcript_upload");
+	const upload_button = document.getElementById("button_transcript_clear");
+	const prompt_tab = document.getElementById("input_prompt_tab");
+	const faq_tab = document.getElementById("input_faq_tab");
+	const updates_tab = document.getElementById("input_releases_notes_tab");
+	const fireside_chats_tab = document.getElementById("input_fireside_chats_tab");
+	const supports_tab = document.getElementById("input_support_maintainers_tab");
+
+	// execute
+	// reset input fields
+	if (reset_content) {
+		if (user_textbox) {
+			user_textbox.value = '';
+			user_textbox.placeholder = 'Write Your Message Here...';
+		}
+	}
+
+	// enable inputs
+	if (user_textbox) {
+		user_textbox.disabled = false;
+	}
+
+	if (user_button) {
+		user_button.disabled = false;
+	}
+
+	if (download_button) {
+		download_button.disabled = false;
+	}
+
+	if (clear_button) {
+		clear_button.disabled = false;
+	}
+
+	if (upload_button) {
+		upload_button.disabled = false;
+	}
+
+	if (prompt_tab) {
+		prompt_tab.disabled = false;
+	}
+
+	if (faq_tab) {
+		faq_tab.disabled = false;
+	}
+
+	if (updates_tab) {
+		updates_tab.disabled = false;
+	}
+
+	if (fireside_chats_tab) {
+		fireside_chats_tab.disabled = false;
+	}
+
+	if (supports_tab) {
+		supports_tab.disabled = false;
+	}
+}
+
+
+
+
+// disable inputs
+function disable_inputs(reset_content) {
+	// validate inputs
+	const user_textbox = document.getElementById("prompt_user_input_box");
+	const user_button = document.getElementById("prompt_user_input_submit");
+	const download_button = document.getElementById("button_transcript_download");
+	const clear_button = document.getElementById("button_transcript_upload");
+	const upload_button = document.getElementById("button_transcript_clear");
+	const prompt_tab = document.getElementById("input_prompt_tab");
+	const faq_tab = document.getElementById("input_faq_tab");
+	const updates_tab = document.getElementById("input_releases_notes_tab");
+	const fireside_chats_tab = document.getElementById("input_fireside_chats_tab");
+	const supports_tab = document.getElementById("input_support_maintainers_tab");
+
+
+	// execute
+	if (reset_content) {
+		if (user_textbox) {
+			user_textbox.value = '';
+			user_textbox.placeholder = 'Processing Response...';
+		}
+	}
+
+	// disable inputs
+	if (user_textbox) {
+		user_textbox.disabled = true;
+	}
+
+	if (user_button) {
+		user_button.disabled = true;
+	}
+
+	if (download_button) {
+		download_button.disabled = true;
+	}
+
+	if (clear_button) {
+		clear_button.disabled = true;
+	}
+
+	if (upload_button) {
+		upload_button.disabled = true;
+	}
+
+	if (prompt_tab) {
+		prompt_tab.disabled = true;
+	}
+
+	if (faq_tab) {
+		faq_tab.disabled = true;
+	}
+
+	if (updates_tab) {
+		updates_tab.disabled = true;
+	}
+
+	if (fireside_chats_tab) {
+		fireside_chats_tab.disabled = true;
+	}
+
+	if (supports_tab) {
+		supports_tab.disabled = true;
+	}
+}
+
+
+
+
+// clean session
+function clear_context_list() {
+	const output_section = document.getElementById("prompt_output_section");
+	if (output_section) {
+		output_section.innerHTML = '';
+	}
+}
+
+
+
+
+// scroll session to bottom
+function scroll_context_list_to_bottom() {
+	const output_section = document.getElementById("prompt_output_section");
+	if (output_section) {
+		output_section.scrollTop = output_section.scrollHeight -
+						output_section.clientHeight;
+	}
+}
+
+
+
+
+// parse transcript into session
+function parse_context_list(content) {
+	// execute
+	// clear existing list
+	clear_context_list();
+
+	// parse content
+	const lines = content.split('\n');
+	let current_speaker = null;
+	let current_message = [];
+
+	for (let line of lines) {
+		if (line == CHAT_REQUESTER_NAME + ":") {
+			if (current_speaker != null) {
+				add_chat_entry(current_speaker,
+					current_message.join('\n').trim());
+				current_message = [];
+			}
+
+			current_speaker = CHAT_REQUESTER;
+		} else if (line == CHAT_RESPONDER_NAME + ":") {
+			if (current_speaker != null) {
+				add_chat_entry(current_speaker,
+					current_message.join('\n').trim());
+				current_message = [];
+			}
+
+			current_speaker = CHAT_RESPONDER;
+		} else if (current_speaker != null) {
+			current_message.push(line);
+		}
+	}
+
+	// add the last message if exists
+	if (current_speaker != null) {
+		var message_box = add_chat_entry(current_speaker,
+					current_message.join('\n').trim());
+
+		if (current_speaker == CHAT_RESPONDER &&
+		current_message.join('\n').trim() == '') {
+			// disable inputs
+			disable_inputs(true);
+
+			// all good - signal backend processing
+			call_backend_API(message_box, get_context_list(false));
+		}
+	}
+
+
+	// scroll to bottom
+	scroll_context_list_to_bottom();
+}
+
+
+
+
+// get transcript from session
+function get_context_list(include_last_entry) {
+	const output_section = document.getElementById("prompt_output_section");
+
+	// validate inputs
+	if (!output_section) {
+		console.log("[ ERROR ] missing 'prompt_output_section'!");
+		return "";
+	}
+
+	// loop through each
+	var output = '';
+	for (var i = 0; i < output_section.children.length; i++) {
+		var bubble = output_section.children[i];
+		var message = undefined;
+
+		for (var j = 0; j < bubble.children.length; j++) {
+			if (bubble.children[j].classList.contains('chat-message')) {
+				var message = bubble.children[j];
+				break;
+			}
+		}
+
+		if (message == undefined) {
+			continue;
+		}
+
+		if (!include_last_entry && i == output_section.children.length - 1) {
+			break;
+		}
+
+		if (bubble.classList.contains('requester')) {
+			if (output != '') {
+				output += "\n\n";
+			}
+			output += CHAT_REQUESTER_NAME + ":\n";
+			output += message.innerText + "\n";
+			output += "\n";
+		} else if (bubble.classList.contains('responder')) {
+			if (output != '') {
+				output += "\n\n";
+			}
+			output += CHAT_RESPONDER_NAME + ":\n";
+			output += message.innerText + "\n";
+			output += "\n";
+		} else {
+			continue
+		}
+	}
+
+	// return transcript
+	return output
+}
+
+
+
+
+// call backend function
+function call_backend_API(rendering_id, context_list) {
+	settings.session = context_list;
+	settings.output_id = rendering_id;
+	update();
+}
+
+
+
+
+// render text chunk from backend
+function render_backend_reply_chunk(data, id) {
+	// validate inputs
+	if (!id) {
+		return;
+	}
+
+	var message_element = document.getElementById(id);
+	if (!message_element) {
+		return;
+	}
+
+	// execute
+	const typingIndicator = message_element.querySelector('.typing-indicator');
+	if (typingIndicator) {
+		typingIndicator.remove();
+	}
+
+	message_element.innerText += data;
+
+	// scroll to bottom
+	scroll_context_list_to_bottom();
+}
+
+
+
+
+// render finish from backend
+function render_backend_finish(data) {
+	// validate inputs
+	const user_textbox = document.getElementById("prompt_user_input_box");
+	const user_button = document.getElementById("prompt_user_input_submit");
+
+	if (!user_textbox) {
+		return;
+	}
+
+
+	// execute
+	// reset input fields
+	enable_inputs(true);
+}
+
+
+
+
+// signal download transcript
+function download_transcript() {
+	// validate input
+	const transcript = get_context_list(true);
+	if (!transcript) {
+		alert('All Clean. Nothing to Download!');
+		return;
+	}
+
+
+	// execute
+	const blob = new Blob([transcript], { type: 'text/plain' });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = `chat-transcript-${new Date().toISOString().split('T')[0]}.txt`;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+	URL.revokeObjectURL(url);
+}
+
+
+
+
+// signal clear transcript
+function clear_transcript() {
+	// execute
+	clear_context_list();
+	enable_inputs(true);
+}
+
+
+
+
+//signal upload transcript
+function trigger_upload() {
+	// validate inputs
+	const uploader = document.getElementById("input_file_uploader");
+
+	if (!uploader) {
+		return;
+	}
+
+
+	// execute
+	uploader.click();
+}
+
+
+function upload_transcript(files) {
+	// validate input
+	if (!files || files.length === 0) {
+		return;
+	}
+
+
+	// execute
+	const file = files[0];
+	if (!file.type.includes('text/plain') && !file.name.endsWith('.txt')) {
+		alert('Please Upload a Valid ".txt" File!');
+		return;
+	}
+
+	const reader = new FileReader();
+	reader.onload = function(data) {
+		try {
+			const content = data.target.result;
+			parse_context_list(content);
+		} catch (error) {
+			alert('Bad Transcript File. Upload aborted!');
+		}
+
+		// reset input for reusability
+		const uploader = document.getElementById("input_file_uploader");
+		if (uploader) {
+			uploader.value = '';
+		}
+	};
+	reader.onerror = function() {
+		alert('Bad Transcript File. Upload aborted!');
+
+		// reset input for reusability
+		const uploader = document.getElementById("input_file_uploader");
+		if (uploader) {
+			uploader.value = '';
+		}
+	}
+	reader.readAsText(file);
+}
+
+
+
+
+// signal trigger to send messages
+function send_message() {
+	// validate inputs
+	const user_textbox = document.getElementById("prompt_user_input_box");
+
+	if (!user_textbox) {
+		return;
+	}
+
+
+	// execute
+	// update chat entries
+	var message_box = add_chat_entry(CHAT_REQUESTER, user_textbox.value);
+	message_box = add_chat_entry(CHAT_RESPONDER, '');
+
+	// disable inputs
+	disable_inputs(true);
+
+	// all good - signal backend processing
+	call_backend_API(message_box, get_context_list(false));
+}
+	</script>
+</head>
+<body>
+	<section id='header_section'>
+		<h1><a href='https://perchance.org/clean-text2text'>[$meta.title]</a></h1>
+		<p class='description'>Viewed [settings.stats.views] times. Last modified [settings.stats.last_modified]. Front-end authored by [settings.stats.authors].</p>
+	</section>
+
+	<input type='radio'
+		id='input_prompt_tab'
+		name=frontend_section_tab'
+		value='prompt'
+		checked
+	/>
+	<section id='prompt_tab' class='tab'><div class='container'>
+		<section id='prompt_transcript_section'>
+			<button id='button_transcript_download'
+				class='button download-transcript'
+				onclick="download_transcript()">DOWNLOAD</button>
+			<button id='button_transcript_upload'
+				class='button upload-transcript'
+				onclick="trigger_upload()">UPLOAD</button>
+			<button id='button_transcript_clear'
+				class='button clear-transcript'
+				onclick="clear_transcript()">CLEAR</button>
+		</section>
+		<section id='prompt_output_section'></section>
+		<section id='prompt_input_section'>
+			<textarea id="prompt_user_input_box"
+				placeholder="Write Your Message Here."
+				required
+			></textarea>
+			<button id="prompt_user_input_submit" onclick="send_message()">&gt;&gt;&gt;</button>
+		</section>
+	</div></section>
+
+	<input type='radio'
+		id='input_faq_tab'
+		name=frontend_section_tab'
+		value='prompt'
+	/>
+	<section id='faq_tab' class='tab'><div class='container'>
+		<div class='row'>
+			<h2>Frequently Asked Questions (FAQ)</h2>
+			<p>
+				Welcome to Perchance.org's Clean Text to Text
+				(T2T) AI generator. This is a simple large
+				language model using Perchance's backend AI
+				T2T system.
+			</p>
+		</div>
+
+		<div class='row'>
+			<h3>To Start</h3>
+			<p>
+				To use this generator, simply:
+			</p>
+			<ol>
+				<li><p>
+					Switch to the <b>Prompt</b> tab.
+				</p></li>
+				<li><p>
+					At the message box below, type in your
+					query.
+				</p></li>
+				<li><p>
+					Hit the send button next to the message
+					box.
+				</p></li>
+				<li><p>
+					Wait for response and continue your
+					conversation. It can take minutes
+					depending on server loads.
+				</p></li>
+			</ol>
+		</div>
+
+		<div class='row'>
+			<h3>Context Aware</h3>
+			<p>
+				This application is made with
+				<b>context-aware</b> facility by default. It
+				also means the previous messages are fed
+				together with your new query. Therefore,
+				<b>the
+				longer the conversation, the heavier the used
+				token counts</b>.
+			</p>
+			<p>
+				For effective use, try keeping the conversation
+				as simple, single topic, and concise as
+				possible. 1 Token is roughly about 3/4 of an
+				English word. You can budget accordingly.
+			</p>
+		</div>
+
+		<div class='row'>
+			<h3>Clean Design</h3>
+			<p>
+				Apart from context-aware feature, this generator
+				doesn't introduce anything else. Hence, it is
+				a great tool to debug and analyze the current
+				backend AI states and develop your prompt.
+			</p>
+		</div>
+
+		<div class='row'>
+			<h3>Saving Session</h3>
+			<p>
+				By default, the session is not saved in both
+				backend server and in your browser.
+				<br/>
+				To save, select the <b>DOWNLOAD</b> button
+				when the prompt is free to download the
+				session entire transcript as <code>.txt</code>
+				file.
+				<br/>
+				To upload, select the <b>UPLOAD</b> button
+				when the prompt is free from running. If the
+				transcript has an empty AI response, the
+				generator will automatically perform the
+				request with the backend server.
+			</p>
+		</div>
+
+		<div class='row'>
+			<h3>Restart Session</h3>
+			<p>
+				Select the <b>CLEAR</b> button when the
+				prompt is free. This will reset a whole new
+				session.
+			</p>
+		</div>
+
+		<div class='row'>
+			<h3>Guard Rails</h3>
+			<p>
+				For front-end (as in web interfaces), the
+				maintainer(s) does not introduce any additional
+				guard rails (default sentences prefix/append
+				to your prompt. Any guard rails can be
+				jail-broken easily by anyone on client-side
+				so it is a waste of efforts without outcome
+				guarentees.
+			</p>
+			<br/>
+			<p>
+				However, depending on backend AI model, some
+				LLM (notably DeepSeek) comes with default
+				guard rails within them. Hence, <b>we can
+				safely state the AI is somewhat guarded</b>.
+				You can query the AI model to learn more about
+				its capability.
+			</p>
+		</div>
+	</div></section>
+
+	<input type='radio'
+		id='input_releases_notes_tab'
+		name=frontend_section_tab'
+		value='prompt'
+	/>
+	<section id='releases_notes_tab' class='tab'><div class='container'>
+		<div class='row'>
+			<h2>Release Notes</h2>
+		</div>
+
+		<div class='row'>
+			<h3>v1.3.0</h3>
+			<ol>
+				<li><p>
+					Added transcript download function.
+				</p></li>
+				<li><p>
+					Added transcript upload function.
+				</p></li>
+				<li><p>
+					Added transcript clear function.
+				</p></li>
+				<li><p>
+					Disable all inputs during prompt
+					requesting for avoiding broken user
+					experience.
+				</p></li>
+			</ol>
+		</div>
+
+		<div class='row'>
+			<h3>v1.2.1</h3>
+			<ol>
+				<li><p>
+					Enabled responsive design for mobile.
+				</p></li>
+				<li><p>
+					UI codes bug fixes.
+				</p></li>
+				<li><p>
+					Make sure prompt session log is reset
+					upon AI completion to avoid unnecessary
+					error.
+				</p></li>
+			</ol>
+		</div>
+
+		<div class='row'>
+			<h3>v1.2.0</h3>
+			<ol>
+				<li><p>
+					Re-styled multi-tabs functionalities.
+				</p></li>
+				<li><p>
+					Added <b>FAQ</b> for beginner guides.
+				</p></li>
+				<li><p>
+					Added <b>Release Notes</b> tab for
+					checking updates.
+				</p></li>
+				<li><p>
+					Added <b>Fireside Chats</b> tab for
+					communities' communications.
+				</p></li>
+				<li><p>
+					Added <b>Support Maintainers</b> for
+					those who want to provides monetary
+					support to the maintainers.
+				</p></li>
+			</ol>
+		</div>
+
+		<div class='row'>
+			<h3>v1.1.1</h3>
+			<ol>
+				<li><p>
+					Added always scroll bottom feature for
+					focusing on latest item.
+				</p></li>
+				<li><p>
+					Added controlled input section to be
+					smaller when screen is at large.
+				</p></li>
+				<li><p>
+					Added responsive placeholder message.
+				</p></li>
+			</ol>
+		</div>
+
+		<div class='row'>
+			<h3>v1.1.0</h3>
+			<ol>
+				<li><p>
+					Added generator statistic plugins and
+					authorship attributions.
+				</p></li>
+				<li><p>
+					Styled page title with cleaner and
+					nicer font styles.
+				</p></li>
+				<li><p>
+					Removed leaked console logging.
+				</p></li>
+				<li><p>
+					Upgraded message encapsulation so that
+					the AI don't simply mis-print the
+					container brackets.
+				</p></li>
+			</ol>
+		</div>
+
+		<div class='row'>
+			<h3>v1.0.1</h3>
+			<ol>
+				<li><p>
+					Added hidden refresh link onto the
+					header title.
+				</p></li>
+			</ol>
+		</div>
+
+		<div class='row'>
+			<h3>v1.0.0</h3>
+			<ol>
+				<li><p>
+					Production version launched.
+				</p></li>
+				<li><p>
+					Uses Perchance's Deepseek R1 AI backend
+					as of 2025.
+				</p></li>
+				<li><p>
+					Context aware feedback loop for
+					continuous chatting.
+				</p></li>
+			</ol>
+		</div>
+	</div></section>
+
+	<input type='radio'
+		id='input_fireside_chats_tab'
+		name=frontend_section_tab'
+		value='prompt'
+	/>
+	<section id='fireside_chats_tab' class='tab'><div class='container'>
+		<div class='row'>
+			<h2>Fireside Chats</h2>
+			<p>Here lies the communities fireside chats.</p>
+		</div>
+		<div class='row'>
+			[Chat(settings.chats)]
+		</div>
+	</div></section>
+
+	<input type='radio'
+		id='input_support_maintainers_tab'
+		name=frontend_section_tab'
+		value='prompt'
+	/>
+	<section id='support_maintainer_tab' class='tab'><div class='container'>
+		<div class='row'>
+			<h2>Supporting Maintainers</h2>
+			<p>
+				First and foremost, <b>thank you for using this
+				generator and for wanting to support
+				the maintainers</b>. There are 2 different
+				and independent entities that bring this
+				generator to live. Below are the available
+				portals for supporting them directly:
+			</p>
+		</div>
+
+		<div class='row' style='margin-top: 5px;'>
+			<h3>Back-end (AI models & Servers)</h3>
+			<p>
+				<b style='color: red;'>DO NOT BLOCK THE ADS ON THIS PAGE</b>.
+				They depend on the ad-revenues to offer the
+				AI services for free.
+			</p>
+		</div>
+
+		<div class='row' style='margin-top: 5px;'>
+			<h3>Front-end (Generator UI and Integrations)</h3>
+			<p>
+				Buy me some sponsorship tokens! That will
+				directly funds my maintainers' hours. You can
+				adjust the quantities for your amount. The
+				portal below will bring you to my Stripe portal
+				directly.
+			</p>
+			<div style='margin-top: 10px;'>
+				<script async src="https://js.stripe.com/v3/buy-button.js"></script>
+				<stripe-buy-button
+					buy-button-id="buy_btn_1ROCQCIjUIWX3dn3HLHjIqxm"
+					publishable-key="pk_live_51LjVxFIjUIWX3dn3yBwaGNWrPVxrnbJwBFoSlAUMIFtmXp2eRlG47F2Yk6LZefF0J4w6amka46Ps6ZHbFvvbBYsX00IRxn5yTg"
+				>
+				</stripe-buy-button>
+			</div>
+		</div>
+	</div></section>
+
+	<nav id='main_nav_section'>
+		<label for='input_prompt_tab'>Prompt</label>
+		<label for='input_faq_tab'>FAQ</label>
+		<label for='input_releases_notes_tab'>Updates</label>
+		<label for='input_fireside_chats_tab'>Chats</label>
+		<label for='input_support_maintainers_tab'>Supports</label>
+	</nav>
+
+	<section class='hidden'>
+		<div>[output]</div>
+		<input type="file" id="input_file_uploader"
+			accept=".txt"
+			style="display: none;"
+			onchange="upload_transcript(this.files)">
+	</section>
+</body>
