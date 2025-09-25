@@ -21,11 +21,13 @@
 	--tab-padding-lv3: 1.8rem;
 	--tab-content-gap-spacing: 1.8rem;
 	--tab-content-gap-spacing-lv3: 2.8rem;
+	--tab-content-border-radius: .3rem;
+	--tab-content-border-radius-lv3: .4rem;
 
 	--tab-bookmark-padding: .5rem;
 	--tab-bookmark-padding-lv3: .5rem;
-	--tab-bookmark-border-radius: .35rem;
-	--tab-bookmark-border-radius-lv3: .35rem;
+	--tab-bookmark-border-radius: .25rem;
+	--tab-bookmark-border-radius-lv3: .25rem;
 
 	/* chat bubbles */
 	--chat-transcript-section-height: max-content;
@@ -56,7 +58,7 @@
 	--chat-input-message-box-padding: .5rem;
 	--chat-input-message-box-padding-lv3: .8rem;
 	--chat-input-message-box-border-radius: .5rem;
-	--chat-input-message-box-border-radius-lv3: .8rem;
+	--chat-input-message-box-border-radius-lv3: .5rem;
 
 	--chat-input-submit-button-width: 100%;
 	--chat-input-submit-button-width-lv3: 5rem;
@@ -115,7 +117,7 @@ body {
 	text-align: left;
 
 	color: #444;
-	background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+	background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
 
 	overflow: hidden;
 }
@@ -194,7 +196,7 @@ body > section#header_section {
 
 	padding-top: var(--page-padding); /* perchance smelly code workaround */
 
-	background: linear-gradient(90deg, #4b6cb7, #182848);
+	background: linear-gradient(90deg, #004e92, #000428);
 	color: white;
 
 	overflow: hidden;
@@ -317,7 +319,7 @@ section.tab > div.container {
 
 	border: 1px solid rgba(255, 255, 255, 0.15);
 	border-bottom: none;
-	border-radius: 16px;
+	border-radius: var(--tab-content-border-radius);
 
 	background: rgba(255, 255, 255, 0.78);
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -360,6 +362,8 @@ body > section#prompt_tab > div.container {
 @media screen and (min-width: 600px) {
 	section.tab > div.container {
 		gap: var(--tab-content-gap-spacing-lv3);
+
+		border-radius: var(--tab-content-border-radius-lv3);
 	}
 
 	section.tab > div.container > * {
@@ -490,7 +494,7 @@ section#prompt_tab section#prompt_input_section {
 
 	border: 1px solid rgba(255, 255, 255, 0.15);
 	border-bottom: none;
-	border-radius: 0 0 16px 16px;
+	border-radius: 0;
 
 	background: rgba(255, 255, 255, 0.05);
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -1448,6 +1452,29 @@ function send_message() {
 	<section id='releases_notes_tab' class='tab'><div class='container'>
 		<div class='row'>
 			<h2>Release Notes</h2>
+		</div>
+
+		<div class='row'>
+			<h3>v1.4.0 (Work in Progress)</h3>
+			<ol>
+				<li><p>
+					Recolored the background with
+					<i>Lawrencium</i> dark gradient.
+				</p></li>
+				<li><p>
+					Recolored the header section with
+					<i>Frost</i> dark gradient.
+				</p></li>
+				<li><p>
+					Implemented Noto Sans full fonts
+					rendering for all available languages
+					globally.
+				</p></li>
+				<li><p>
+					Touched up glass panels design (color,
+					edges, etc).
+				</p></li>
+			</ol>
 		</div>
 
 		<div class='row'>
