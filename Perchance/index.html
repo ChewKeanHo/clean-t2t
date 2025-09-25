@@ -157,8 +157,45 @@ body > section.tab {
 	visibility: hidden;
 }
 
+h1, h2, h3, h4, h5, h6 {
+	padding: 1rem 0;
+}
+
+p {
+	padding: 1.2rem 0 0;
+}
+
 ul, ol {
-	padding-left: 30px;
+	padding-left: 3rem;
+}
+
+:is(ul, ol) li {
+	padding: .5rem 0;
+}
+
+ul {
+	list-style-type: disc;
+}
+
+hr {
+	min-width: 100%;
+	width: 100%;
+	max-width: 100%;
+	min-height: .1rem;
+	height: .1rem;
+	max-height: .1rem;
+
+	margin: 2.8rem 0 2.5rem;
+
+	border: none;
+}
+
+pre {
+	margin: 2rem;
+}
+
+pre, code {
+	color: #004e92;
 }
 
 @media (min-width: 600px) {
@@ -225,6 +262,8 @@ section#header_section a {
 
 section#header_section > .description {
 	grid-area: description;
+
+	padding: .5rem 0;
 
 	font-size: 12px;
 }
@@ -764,6 +803,11 @@ section#prompt_tab section#prompt_input_section > button:active {
 	}
 }
 	</style>
+	<script type="module">
+// import module types
+import * as smd from "https://cdn.jsdelivr.net/npm/streaming-markdown/smd.min.js";
+window.smd = smd;
+	</script>
 	<script>
 // definitions
 const CHAT_REQUESTER = 0;
@@ -771,6 +815,31 @@ const CHAT_REQUESTER_NAME = "USER";
 
 const CHAT_RESPONDER = 1;
 const CHAT_RESPONDER_NAME = "AI";
+
+const CHAT_ATTRIBUTE = 'data-original';
+
+
+
+
+// initialize modules
+var requester_parser = null;
+var responder_parser = null;
+
+
+
+
+// encode plain text into base64 content
+function encode_message(content) {
+    return btoa(unescape(encodeURIComponent(content)));
+}
+
+
+
+
+// decode url-safe base64 content to plain text
+function decode_message(base64) {
+    return decodeURIComponent(escape(atob(base64)));
+}
 
 
 
@@ -792,11 +861,12 @@ function add_chat_entry(owner, message) {
 	chat_bubble_profile.id = 'chat_bubble_profile_' + chat_bubble_current_index;
 	chat_bubble_profile.className = 'chat-profile';
 
-	const chat_bubble_message = document.createElement('p');
+	const chat_bubble_message = document.createElement('div');
+	const renderer = window.smd.default_renderer(chat_bubble_message);
 	chat_bubble_message.id = 'chat_bubble_message_' + chat_bubble_current_index;
 	chat_bubble_message.className = 'chat-message';
 	if (message != '') {
-		chat_bubble_message.innerText = message;
+		chat_bubble_message.setAttribute(CHAT_ATTRIBUTE, encode_message(message));
 	}
 
 	const chat_bubble = document.createElement('div');
@@ -808,12 +878,19 @@ function add_chat_entry(owner, message) {
 	case 0: // requester
 		chat_bubble.className = 'chat-bubble requester';
 		chat_bubble_profile.innerText = '<';
+		requester_message_parser = window.smd.parser(renderer);
+		if (message != '') {
+			window.smd.parser_write(requester_message_parser, message);
+			window.smd.parser_end(requester_message_parser);
+		}
+
 		break;
 	case 1: // responder
 		chat_bubble.className = 'chat-bubble responder';
 		chat_bubble_profile.innerText = '>';
+		responder_message_parser = window.smd.parser(renderer);
 
-		if (message === '') {
+		if (message == '') {
 			const indicator = document.createElement('div');
 			indicator.className = 'typing-indicator';
 			indicator.id = 'chat-buble-typing-indicator_' + chat_bubble_current_index;
@@ -824,7 +901,11 @@ function add_chat_entry(owner, message) {
 			}
 
 			chat_bubble_message.appendChild(indicator);
+		} else {
+			window.smd.parser_write(responder_message_parser, message);
+			window.smd.parser_end(responder_message_parser);
 		}
+
 		break;
 	default:
 		console.log("[ ERROR ] can't add chat entry! unknown owner: " + owner);
@@ -858,8 +939,8 @@ function enable_inputs(reset_content) {
 	const fireside_chats_tab = document.getElementById("input_fireside_chats_tab");
 	const supports_tab = document.getElementById("input_support_maintainers_tab");
 
+
 	// execute
-	// reset input fields
 	if (reset_content) {
 		if (user_textbox) {
 			user_textbox.value = '';
@@ -867,7 +948,6 @@ function enable_inputs(reset_content) {
 		}
 	}
 
-	// enable inputs
 	if (user_textbox) {
 		user_textbox.disabled = false;
 	}
@@ -935,7 +1015,6 @@ function disable_inputs(reset_content) {
 		}
 	}
 
-	// disable inputs
 	if (user_textbox) {
 		user_textbox.disabled = true;
 	}
@@ -1006,7 +1085,6 @@ function scroll_context_list_to_bottom() {
 // parse transcript into session
 function parse_context_list(content) {
 	// execute
-	// clear existing list
 	clear_context_list();
 
 	// parse content
@@ -1051,7 +1129,6 @@ function parse_context_list(content) {
 		}
 	}
 
-
 	// scroll to bottom
 	scroll_context_list_to_bottom();
 }
@@ -1073,16 +1150,16 @@ function get_context_list(include_last_entry) {
 	var output = '';
 	for (var i = 0; i < output_section.children.length; i++) {
 		var bubble = output_section.children[i];
-		var message = undefined;
+		var message_element = undefined;
 
 		for (var j = 0; j < bubble.children.length; j++) {
 			if (bubble.children[j].classList.contains('chat-message')) {
-				var message = bubble.children[j];
+				var message_element = bubble.children[j];
 				break;
 			}
 		}
 
-		if (message == undefined) {
+		if (message_element == undefined) {
 			continue;
 		}
 
@@ -1090,19 +1167,24 @@ function get_context_list(include_last_entry) {
 			break;
 		}
 
+		const encoded_message = message_element.getAttribute(CHAT_ATTRIBUTE);
+		const message = encoded_message ? decode_message(encoded_message) : '';
+
 		if (bubble.classList.contains('requester')) {
 			if (output != '') {
 				output += "\n\n";
 			}
+
 			output += CHAT_REQUESTER_NAME + ":\n";
-			output += message.innerText + "\n";
+			output += message + "\n";
 			output += "\n";
 		} else if (bubble.classList.contains('responder')) {
 			if (output != '') {
 				output += "\n\n";
 			}
+
 			output += CHAT_RESPONDER_NAME + ":\n";
-			output += message.innerText + "\n";
+			output += message + "\n";
 			output += "\n";
 		} else {
 			continue
@@ -1139,12 +1221,20 @@ function render_backend_reply_chunk(data, id) {
 	}
 
 	// execute
+	// remove typing indicator if found
 	const typingIndicator = message_element.querySelector('.typing-indicator');
 	if (typingIndicator) {
 		typingIndicator.remove();
 	}
 
-	message_element.innerText += data;
+	// update original message dataset
+	const encoded_current = message_element.getAttribute(CHAT_ATTRIBUTE) || '';
+	const current_message = encoded_current ? decode_message(encoded_current) : '';
+	const updated_message = current_message + data;
+	message_element.setAttribute(CHAT_ATTRIBUTE, encode_message(updated_message));
+
+	// update HTML rendering
+	window.smd.parser_write(responder_message_parser, data);
 
 	// scroll to bottom
 	scroll_context_list_to_bottom();
@@ -1155,17 +1245,8 @@ function render_backend_reply_chunk(data, id) {
 
 // render finish from backend
 function render_backend_finish(data) {
-	// validate inputs
-	const user_textbox = document.getElementById("prompt_user_input_box");
-	const user_button = document.getElementById("prompt_user_input_submit");
-
-	if (!user_textbox) {
-		return;
-	}
-
-
 	// execute
-	// reset input fields
+	smd.parser_end(responder_message_parser);
 	enable_inputs(true);
 }
 
@@ -1473,6 +1554,13 @@ function send_message() {
 				<li><p>
 					Touched up glass panels design (color,
 					edges, etc).
+				</p></li>
+				<li><p>
+					Added Markdown stream rendering support.
+				</p></li>
+				<li><p>
+					Added full HTML Markdown compatible
+					UI styling.
 				</p></li>
 			</ol>
 		</div>
